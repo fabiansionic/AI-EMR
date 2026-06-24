@@ -10,8 +10,15 @@ from zipfile import ZipFile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = ROOT / "data" / "aihub" / "09.필수의료_의학지식_데이터"
-DEFAULT_OUTPUT = ROOT / "data" / "storm" / "aihub_71875"
+DEFAULT_INPUT = (
+    ROOT
+    / "data"
+    / "aihub"
+    / "knowledge-data"
+    / "aihub_71875"
+    / "09.필수의료_의학지식_데이터"
+)
+DEFAULT_OUTPUT = ROOT / "data" / "storm" / "knowledge-data" / "aihub_71875"
 
 SOURCE_META = {
     "TS_국문_기타.zip": ("sources/kr_misc.jsonl", "Korean", "miscellaneous"),
@@ -154,4 +161,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

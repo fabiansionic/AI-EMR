@@ -2,89 +2,97 @@
 
 AI-EMR is a prototype workspace for an AI-assisted Korean EMR billing and review guide system. The target system analyzes de-identified, unstructured EMR text, extracts likely KCD diagnosis codes and EDI billing/procedure/drug codes, retrieves relevant review standards through RAG, and returns structured guidance about deduction risk and missing documentation.
 
-This repository currently contains AIHub data download/preparation scripts, STORM-ready Markdown source files, and draft STORM workflow artifacts.
+The repository is organized around two data roles:
 
-## Project Goal
-
-The intended assistant should:
-
-- Accept de-identified EMR text such as chief complaint, present illness, physician orders, procedure records, operation notes, and nursing notes.
-- Extract billing-relevant clinical facts with direct EMR evidence snippets.
-- Suggest candidate KCD and EDI codes with confidence scores.
-- Retrieve relevant Korean review standards and medical references through STORM/RAG.
-- Analyze deduction risk only from retrieved context.
-- Return strict JSON with recommended codes, uncertain codes, deduction warnings, retrieved sources, and human-review flags.
+- `knowledge-data`: curated medical knowledge, review-support references, and QA material used as the main RAG knowledge base.
+- `voice-data`: medical speech/transcript material intended to add realistic patient-care and medical-consultation language once AIHub safe-zone access exposes downloadable TXT/JSON files.
 
 The system is review-support tooling. It should not make autonomous medical, legal, or reimbursement decisions.
 
-## Repository Layout
+## Data Layout
 
 ```text
-.
-├── README.md
-├── config/
-│   ├── aihub_datasets.tsv
-│   └── storm.json
-├── data/
-│   └── storm_md/
-│       └── aihub_71875/
-│           └── sources/
-│               ├── en_international_guidelines/
-│               ├── en_journals/
-│               ├── en_online_medical_sites/
-│               ├── kr_journals/
-│               ├── kr_medical_textbooks/
-│               ├── kr_misc/
-│               ├── kr_online_medical_sites/
-│               └── kr_society_guidelines/
-├── scripts/
-│   ├── aihub_direct.py
-│   ├── download_aihub.sh
-│   ├── prepare_storm_jsonl.py
-│   ├── prepare_storm_markdown.py
-│   ├── prepare_storm_text.py
-│   ├── run_storm_validation.py
-│   ├── upload_storm_markdown_sources.py
-│   ├── upload_storm_sources.py
-│   └── upload_storm_text_sources.py
-├── storm-create-workflow.json
-└── storm-workflow.json
+data/
+├── aihub/
+│   ├── knowledge-data/
+│   │   └── aihub_71875/
+│   │       └── 09.필수의료_의학지식_데이터/
+│   └── voice-data/
+│       └── aihub_566/
+├── storm/
+│   ├── knowledge-data/
+│   │   └── aihub_71875/
+│   │       ├── manifest.jsonl
+│   │       ├── qa/
+│   │       └── sources/
+│   └── voice-data/
+│       └── aihub_566/
+├── storm_txt/
+│   ├── knowledge-data/
+│   │   └── aihub_71875/
+│   │       ├── manifest/
+│   │       ├── qa/
+│   │       └── sources/
+│   └── voice-data/
+│       └── aihub_566/
+└── storm_md/
+    └── aihub_71875/
 ```
 
-## Current Markdown Sources
+`storm_txt/` is the active STORM ingestion format because STORM accepts `.txt` while Markdown is not a supported upload extension in the current parsing architecture. `storm_md/` is retained as an intermediate/archive for now, but it is not the preferred ingestion target.
 
-The STORM Markdown source tree is under:
+## Dataset Inventory
+
+| Dataset | Local group | Current status | Formats | Contribution to the agent |
+| --- | --- | --- | --- | --- |
+| AIHub 71875, 필수의료 의학지식 데이터 | `knowledge-data` | Downloaded and converted | Raw ZIP, JSONL, TXT | Main medical knowledge base: Korean/English medical references, guidelines, online medical sources, journals, textbooks, and department QA pairs. This is the primary RAG source for code rationale, review-standard retrieval, and clinical grounding. |
+| AIHub 71487, 의료/법률 전문 서적 말뭉치 | `knowledge-data` | Listed in config, not currently present locally | Expected text/corpus files after approval | Future expansion source for medical/legal language and reimbursement-adjacent reasoning. |
+| AIHub 566, 의료 분야 음성 데이터 | `voice-data` | Folder prepared; API/file list currently unavailable | Target: TXT and JSON only. Audio WAV/M4A intentionally skipped for now. | Future source of realistic patient-care speech, consultation transcripts, speaker/utterance labels, normalized text, speech acts, and morpheme annotations. Useful for making retrieval and extraction robust to conversational EMR-adjacent Korean. |
+
+## AIHub 566 Voice-Data Plan
+
+For RAG, download only transcript and label files when AIHub exposes file keys:
+
+- Keep `.txt` transcripts as direct RAG text.
+- Convert `.json` labels into readable `.txt` under `data/storm_txt/voice-data/aihub_566/`.
+- Skip `.wav` and `.m4a` for this phase. The dataset already includes transcripts, and audio transcription would add time and compute cost without improving the initial text RAG corpus.
+
+The public AIHub page describes dataset 566 as healthcare audio/text data with `TXT`, `WAV`, `M4A`, and JSON labels. It includes patient-care data, 119 emergency-center data, and call-center consultation data. The JSON labels are expected to contain metadata such as source filename, media/source type, date, medical subject, speaker information, sentence text, normalized text, speech act, and morpheme analysis.
+
+Current limitation: dataset 566 is an online safe-zone dataset. The AIHub API and official `aihubshell` currently return no downloadable file tree for this workspace/API key, so TXT/JSON-only file keys are not available yet. The prepared voice folders are intentionally empty except for placeholders.
+
+## Current STORM Sources
+
+The active STORM-ready text tree is:
 
 ```text
-data/storm_md/aihub_71875/sources/
+data/storm_txt/knowledge-data/aihub_71875/
 ```
 
-Current source groups include:
+Important subgroups:
 
-- `kr_society_guidelines`
-- `kr_misc`
-- `kr_medical_textbooks`
-- `kr_journals`
-- `kr_online_medical_sites`
-- `en_international_guidelines`
-- `en_journals`
-- `en_online_medical_sites`
+- `sources/kr_society_guidelines`
+- `sources/kr_misc`
+- `sources/kr_medical_textbooks`
+- `sources/kr_journals`
+- `sources/kr_online_medical_sites`
+- `sources/en_international_guidelines`
+- `sources/en_journals`
+- `sources/en_online_medical_sites`
+- `qa/training_*`
+- `qa/validation_*`
 
-Files from the current IDE tabs:
+The JSONL source tree is:
 
-| File | Status |
-| --- | --- |
-| `data/storm_md/aihub_71875/sources/kr_society_guidelines/kr_society_guidelines_part-0002.md` | Found |
-| `data/storm_md/aihub_71875/sources/kr_misc/kr_misc_part-0008.md` | Not found |
-| `data/storm_md/aihub_71875/sources/kr_misc/kr_misc_part-0004.md` | Found |
-| `data/storm_md/aihub_71875/sources/kr_medical_textbooks/kr_medical_textbooks_part-0001.md` | Found |
-| `data/storm_md/aihub_71875/sources/kr_journals/kr_journals_part-0002.md` | Found |
+```text
+data/storm/knowledge-data/aihub_71875/
+```
 
-At the time of this README update, `kr_misc` contains `kr_misc_part-0001.md` through `kr_misc_part-0005.md`; `kr_misc_part-0008.md` is not present at that path.
+These JSONL files preserve structured metadata and QA/source records. The TXT tree is what should be uploaded to STORM for RAG ingestion.
 
 ## Target Workflow
 
-The recommended STORM workflow should be staged like this:
+The intended assistant should:
 
 1. `privacy_and_input_gate`
    Validate de-identification, detect EMR sections, and fail closed if direct identifiers are present.
@@ -110,68 +118,24 @@ The recommended STORM workflow should be staged like this:
 8. `json_finalizer`
    Return strict JSON with recommended codes, uncertain codes, deduction warnings, retrieved sources, human-review requirements, and an audit trail.
 
-## Expected JSON Output
-
-```json
-{
-  "privacy_status": "PASS",
-  "recommended_codes": [
-    {
-      "type": "KCD",
-      "code": "M22.46",
-      "name": "슬개골의 연화증, 아래다리",
-      "confidence_score": 0.82,
-      "rationale": "EMR evidence supports right knee pain and cartilage weakness.",
-      "emr_evidence": ["오른쪽 무릎 통증", "연골 약화 소견"]
-    }
-  ],
-  "uncertain_codes": [],
-  "deduction_warnings": [
-    {
-      "risk_level": "HIGH",
-      "target_code": "EDI_XXXXXX",
-      "reason": "Retrieved review context indicates missing prerequisite conservative-treatment documentation.",
-      "current_emr_evidence": ["오른쪽 무릎 통증"],
-      "missing_evidence": ["4주 이상 보존적 치료 후 호전 없음"],
-      "actionable_guide": "If clinically true, document the duration and outcome of conservative treatment.",
-      "source_passage_ids": ["passage-001"],
-      "confidence_score": 0.76
-    }
-  ],
-  "retrieved_sources": [
-    {
-      "passage_id": "passage-001",
-      "source_name": "HIRA review guideline",
-      "source_type": "HIRA",
-      "effective_date": null,
-      "related_codes": ["M22.46", "EDI_XXXXXX"],
-      "citation_metadata": "source metadata from STORM bucket"
-    }
-  ],
-  "human_review_required": true,
-  "human_review_reason": "High deduction risk or insufficient official review evidence.",
-  "audit_trail": [
-    "Validated de-identification.",
-    "Extracted entities from EMR.",
-    "Retrieved review context.",
-    "Generated evidence-grounded risk analysis."
-  ]
-}
-```
+The workflow diagram should be managed on the STORM platform. Use `storm-workflow.json` as the pushable order sheet, and keep `storm-create-workflow.json` as the same workflow shape for initial setup or recreation.
 
 ## AIHub Download
 
-AIHub dataset downloads use the official `aihubshell` CLI. The script in `scripts/download_aihub.sh` installs that CLI locally under `tools/` and saves downloaded datasets under `data/aihub/`.
+AIHub dataset downloads use the official `aihubshell` CLI. The script in `scripts/download_aihub.sh` installs that CLI locally under `tools/` and routes downloads by dataset:
+
+- Dataset `566` -> `data/aihub/voice-data/aihub_566/`
+- Other configured datasets -> `data/aihub/knowledge-data/aihub_<datasetkey>/`
 
 There is also a native Python alternative at `scripts/aihub_direct.py`. It uses the same AIHub HTTPS endpoints as `aihubshell`, but does not require the AIHub shell script, Rosetta, GNU grep, or Linux-specific merge commands.
 
 AIHub requirements:
 
 - An AIHub account
-- An issued AIHub API key
+- An issued AIHub API key in `.env`
 - Download/access approval for each dataset from the dataset detail page
+- Additional safe-zone approval for healthcare safe-zone datasets
 - Enough free disk space for 2-3x the compressed dataset size during download
-- Linux/WSL is recommended by AIHub. On macOS, `aihubshell` may require GNU command-line tools because the stock BSD `grep` does not support `grep -P`.
 
 The target datasets are listed in `config/aihub_datasets.tsv`.
 
@@ -182,17 +146,18 @@ The target datasets are listed in `config/aihub_datasets.tsv`.
 # Install/update the official aihubshell downloader locally.
 ./scripts/download_aihub.sh install
 
-# List AIHub file keys for each configured dataset.
-./scripts/download_aihub.sh list-files
+# List AIHub file keys.
+./scripts/download_aihub.sh list-files 71875
+./scripts/download_aihub.sh list-files 566
 
-# Download all configured datasets into data/aihub/.
-./scripts/download_aihub.sh download
-
-# Download one dataset.
-./scripts/download_aihub.sh download 71487
+# Download one knowledge dataset.
+./scripts/download_aihub.sh download 71875
 
 # Download selected file keys from one dataset.
-./scripts/download_aihub.sh download 71487 12345,67890
+./scripts/download_aihub.sh download 71875 12345,67890
+
+# For dataset 566, download only TXT/JSON file keys once AIHub exposes them.
+./scripts/download_aihub.sh download 566 TXT_JSON_FILEKEYS_HERE
 ```
 
 Native Python alternative:
@@ -200,10 +165,10 @@ Native Python alternative:
 ```bash
 python3 scripts/aihub_direct.py list 71875
 python3 scripts/aihub_direct.py download 71875
-python3 scripts/aihub_direct.py download 71875 556391
+python3 scripts/aihub_direct.py download 566 TXT_JSON_FILEKEYS_HERE
 ```
 
-The script auto-loads `.env` from the repository root. Use either variable name:
+The scripts auto-load `.env` from the repository root. Use either variable name:
 
 ```bash
 AIHUB_API_KEY='your-api-key'
@@ -215,42 +180,34 @@ or:
 AIHUB_APIKEY='your-api-key'
 ```
 
-On macOS, run downloads from a Linux machine/container, WSL, or a shell where GNU grep is first on `PATH`.
+## Conversion
 
-Dataset `566` is marked by AIHub as online safe-zone data, so local API download may be unavailable until the safe-zone access flow is approved.
-
-## STORM Notes
-
-The local STORM CLI can manage agents, buckets, documents, prompts, workflows/order sheets, DSL validation, and deployments. Based on local CLI help, STORM can support this project by:
-
-- Uploading prepared source documents into buckets.
-- Retrieving RAG context with `storm context`.
-- Managing prompt recipes with `storm prompt`.
-- Linting and pushing workflow/order-sheet JSON with `storm workflow`.
-- Compiling or validating TypeScript DSL workflows with `storm dsl`.
-- Refining local order sheets with `storm arbiter refine`.
-
-STORM does not appear to automatically parse Korean HWP/PDF notices, maintain official Korean medical master data, guarantee source freshness, or validate medical/reimbursement correctness by itself. Those responsibilities need upstream ingestion, metadata policy, workflow prompts, validation, and human review.
-
-Example validation commands:
+Convert raw AIHub 71875 ZIP files into structured JSONL:
 
 ```bash
-storm workflow lint storm-workflow.json
-storm workflow lint storm-create-workflow.json
+python3 scripts/prepare_storm_jsonl.py
 ```
 
-Example deployment flow:
+Convert Markdown shards to STORM-accepted TXT files:
 
 ```bash
-storm workflow diff <agent-id> storm-workflow.json
-storm workflow push <agent-id> storm-workflow.json
-storm deploy <agent-id> --env dev --memo "AI-EMR billing and review workflow"
+python3 scripts/prepare_storm_text.py
 ```
 
-## Safety And Review Policy
+Convert future AIHub 566 TXT/JSON files into STORM-ready TXT:
 
-- Use de-identified EMR data only.
-- Ground deduction-risk findings in retrieved source context.
-- Mark low-confidence or unsupported findings as insufficient evidence.
-- Require human review for high-risk, ambiguous, unsupported, or policy-sensitive claims.
-- Do not generate documentation guidance that implies adding clinically false information.
+```bash
+python3 scripts/prepare_voice_text.py
+```
+
+Upload TXT sources to STORM:
+
+```bash
+python3 scripts/upload_storm_text_sources.py
+```
+
+Run a small validation pass against the 71875 QA JSONL:
+
+```bash
+python3 scripts/run_storm_validation.py
+```

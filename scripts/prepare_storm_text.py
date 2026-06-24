@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = ROOT / "data" / "storm_md" / "aihub_71875"
-DEFAULT_OUTPUT = ROOT / "data" / "storm_txt" / "aihub_71875"
+DEFAULT_OUTPUT = ROOT / "data" / "storm_txt" / "knowledge-data" / "aihub_71875"
 
 
 def convert(input_dir: Path, output_dir: Path) -> None:

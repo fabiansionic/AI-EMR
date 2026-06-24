@@ -13,8 +13,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STORM_CONFIG = ROOT / "config" / "storm.json"
-DEFAULT_SOURCES_DIR = ROOT / "data" / "storm_txt" / "aihub_71875" / "sources"
-DEFAULT_LOG_PATH = ROOT / "data" / "storm_txt" / "aihub_71875" / "upload_results.jsonl"
+DEFAULT_SOURCES_DIR = ROOT / "data" / "storm_txt" / "knowledge-data" / "aihub_71875" / "sources"
+DEFAULT_LOG_PATH = ROOT / "data" / "storm_txt" / "knowledge-data" / "aihub_71875" / "upload_results.jsonl"
 
 
 def load_config(path: Path) -> dict[str, str]:

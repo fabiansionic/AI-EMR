@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 MANIFEST="${AIHUB_MANIFEST:-"${ROOT_DIR}/config/aihub_datasets.tsv"}"
-DATA_DIR="${AIHUB_DATA_DIR:-"${ROOT_DIR}/data/aihub"}"
+DATA_ROOT="${AIHUB_DATA_ROOT:-"${ROOT_DIR}/data/aihub"}"
 TOOLS_DIR="${AIHUB_TOOLS_DIR:-"${ROOT_DIR}/tools"}"
 AIHUBSHELL="${AIHUBSHELL:-"${TOOLS_DIR}/aihubshell"}"
 AIHUBSHELL_URL="https://api.aihub.or.kr/api/aihubshell.do"
@@ -29,7 +29,8 @@ Usage:
 
 Environment:
   AIHUB_API_KEY   Required for download mode.
-  AIHUB_DATA_DIR  Optional output directory. Defaults to data/aihub.
+  AIHUB_DATA_ROOT  Optional output root. Defaults to data/aihub.
+  AIHUB_DATA_DIR   Optional exact output directory, overriding dataset routing.
 USAGE
 }
 
@@ -103,22 +104,36 @@ download_dataset() {
   ensure_aihubshell
   warn_runtime_compatibility
   ensure_api_key
-  mkdir -p "${DATA_DIR}"
   export AIHUB_APIKEY="${AIHUB_API_KEY}"
 
   local datasetkey="$1"
   local filekeys="${2:-}"
+  local data_dir
+  data_dir="$(data_dir_for_dataset "${datasetkey}")"
+  mkdir -p "${data_dir}"
 
   echo
-  echo "== Downloading dataset ${datasetkey} into ${DATA_DIR} =="
+  echo "== Downloading dataset ${datasetkey} into ${data_dir} =="
   (
-    cd "${DATA_DIR}"
+    cd "${data_dir}"
     if [[ -n "${filekeys}" ]]; then
       "${AIHUBSHELL}" -mode d -datasetkey "${datasetkey}" -filekey "${filekeys}"
     else
       "${AIHUBSHELL}" -mode d -datasetkey "${datasetkey}"
     fi
   )
+}
+
+data_dir_for_dataset() {
+  local datasetkey="$1"
+
+  if [[ -n "${AIHUB_DATA_DIR:-}" ]]; then
+    echo "${AIHUB_DATA_DIR}"
+  elif [[ "${datasetkey}" == "566" ]]; then
+    echo "${DATA_ROOT}/voice-data/aihub_${datasetkey}"
+  else
+    echo "${DATA_ROOT}/knowledge-data/aihub_${datasetkey}"
+  fi
 }
 
 download_all() {

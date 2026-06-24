@@ -14,7 +14,7 @@ from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATA_DIR = ROOT / "data" / "aihub"
+DEFAULT_DATA_ROOT = ROOT / "data" / "aihub"
 DEFAULT_ENV_FILE = ROOT / ".env"
 BASE_URL = "https://api.aihub.or.kr"
 API_VERSION = "0.6"
@@ -61,6 +61,12 @@ def list_dataset(dataset_key: str | None) -> None:
     else:
         url = f"{BASE_URL}/info/dataset.do"
     print(read_text(url))
+
+
+def default_data_dir(dataset_key: str) -> Path:
+    if dataset_key == "566":
+        return DEFAULT_DATA_ROOT / "voice-data" / f"aihub_{dataset_key}"
+    return DEFAULT_DATA_ROOT / "knowledge-data" / f"aihub_{dataset_key}"
 
 
 def download_dataset(dataset_key: str, file_keys: str, data_dir: Path) -> None:
@@ -144,7 +150,7 @@ def merge_parts(data_dir: Path) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE)
-    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
+    parser.add_argument("--data-dir", type=Path)
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -165,7 +171,8 @@ def main() -> None:
     if args.command == "list":
         list_dataset(args.dataset_key)
     elif args.command == "download":
-        download_dataset(args.dataset_key, args.file_keys, args.data_dir)
+        data_dir = args.data_dir or default_data_dir(args.dataset_key)
+        download_dataset(args.dataset_key, args.file_keys, data_dir)
     else:
         raise SystemExit(f"Unknown command: {args.command}")
 

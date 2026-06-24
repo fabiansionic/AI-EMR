@@ -11,8 +11,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_QA_DIR = ROOT / "data" / "storm" / "aihub_71875" / "qa"
-DEFAULT_OUTPUT = ROOT / "data" / "storm" / "aihub_71875" / "validation_results.jsonl"
+DEFAULT_QA_DIR = ROOT / "data" / "storm" / "knowledge-data" / "aihub_71875" / "qa"
+DEFAULT_OUTPUT = ROOT / "data" / "storm" / "knowledge-data" / "aihub_71875" / "validation_results.jsonl"
 DEFAULT_STORM_CONFIG = ROOT / "config" / "storm.json"
 
 

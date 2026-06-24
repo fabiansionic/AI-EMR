@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STORM_CONFIG = ROOT / "config" / "storm.json"
-DEFAULT_SOURCES_DIR = ROOT / "data" / "storm" / "aihub_71875" / "sources"
+DEFAULT_SOURCES_DIR = ROOT / "data" / "storm" / "knowledge-data" / "aihub_71875" / "sources"
 
 
 def load_config(path: Path) -> dict[str, str]:
@@ -66,4 +66,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

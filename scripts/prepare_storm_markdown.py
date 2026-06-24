@@ -11,7 +11,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = ROOT / "data" / "storm" / "aihub_71875"
+DEFAULT_INPUT = ROOT / "data" / "storm" / "knowledge-data" / "aihub_71875"
 DEFAULT_OUTPUT = ROOT / "data" / "storm_md" / "aihub_71875"
 DEFAULT_MAX_BYTES = 15_000_000
 DEFAULT_MAX_RECORDS = 5_000

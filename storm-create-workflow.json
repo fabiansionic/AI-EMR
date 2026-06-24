@@ -1,4 +1,8 @@
 {
+  "id": "local-ai-emr-create-workflow",
+  "agentId": "7475416844727144448",
+  "schemaVersion": 1,
+  "revision": 1,
   "orderSheet": {
     "links": [
       [
@@ -27,9 +31,12 @@
           "max_round": 10,
           "web_search": false,
           "callback_url": null,
-          "context_hint": null,
+          "context_hint": "You are the AI-EMR billing and review workflow assistant for Korean healthcare EMR support. Use the uploaded STORM TXT knowledge sources as the primary RAG base. Treat data/storm_txt/knowledge-data/aihub_71875 as the current authoritative local ingestion set. Treat data/storm_txt/voice-data/aihub_566 as a future conversational-language enrichment source; do not assume it contains uploaded evidence unless retrieved context explicitly includes it. Follow this internal workflow: 1) privacy_and_input_gate: verify the EMR is de-identified and flag direct identifiers. 2) emr_entity_extractor: extract symptoms, diagnoses, anatomy, laterality, severity, duration, prior treatment, procedures, drugs, tests, orders, and short EMR evidence snippets. 3) coding_candidate_generator: propose KCD and EDI candidates only when supported by EMR evidence; include confidence and uncertainty. 4) rag_query_builder: use extracted facts, candidate codes, Korean terms, drug/procedure names, and review-risk concepts to retrieve context. 5) review_standard_retriever: prefer relevant retrieved passages from official or curated sources with source type, effective date, and related-code metadata when available. 6) deduction_risk_reviewer: compare EMR evidence and candidate codes against retrieved context only; identify indication mismatch, missing prerequisite treatment, diagnosis-code mismatch, dose/frequency/duration limits, unsupported procedures or drugs, and insufficient evidence. 7) documentation_gap_advisor: suggest chart supplementation only if clinically true; never imply fabrication. 8) json_finalizer: return strict JSON only, with privacy_status, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, and audit_trail. If no relevant review context is retrieved, fail closed with NEEDS_EVIDENCE instead of inventing standards. This is review-support tooling, not autonomous medical, legal, or reimbursement decision-making.",
           "skip_learning": false,
-          "knowledge_scope": "agent",
+          "knowledge_scope": "selected_buckets",
+          "selected_bucket_ids": [
+            "7475416844727144449"
+          ],
           "include_references": true,
           "exploration_timeout_ms": 180000
         }
@@ -37,13 +44,10 @@
       {
         "id": 3,
         "type": "storm/response",
-        "properties": {
-          "result_list": [
-            "{{custom_variables}}"
-          ]
-        }
+        "properties": {}
       }
     ]
-  }
+  },
+  "customVariables": {},
+  "note": "AI-EMR order sheet for prepared TXT knowledge sources ready to upload to STORM."
 }
-
