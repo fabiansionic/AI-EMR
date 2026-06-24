@@ -1,5 +1,5 @@
 {
-  "id": "7475502065629970432",
+  "id": "7475517269175672832",
   "agentId": "7475416844727144448",
   "schemaVersion": 1,
   "revision": 1,
@@ -32,14 +32,24 @@
         "type": "storm/rag",
         "properties": {
           "query_template": "Korean EMR billing review retrieval query. Extract and search for KCD diagnosis, EDI procedure/drug/test codes, HIRA review criteria, MOHW benefit criteria, MFDS approval criteria, indication mismatch, prerequisite conservative treatment, dose frequency duration limit, deduction case. User EMR/question: {{query}}",
-          "knowledge_scope": "selected_buckets",
-          "selected_bucket_ids": [
+          "target_bucket": [
             "7475416844727144449"
           ],
           "include_references": true,
           "top_k": 12,
           "rerank": {
             "top_k": 12
+          },
+          "retrieval": {
+            "candidate_expansion": {
+              "pre_expansion": {
+                "enabled": true,
+                "enlarge_recipe": {
+                  "128": 1,
+                  "256": 0
+                }
+              }
+            }
           }
         }
       },
@@ -47,22 +57,25 @@
         "id": 3,
         "type": "storm/llm",
         "properties": {
-          "chatEngine": "anthropic",
-          "model": "claude-sonnet-4-6",
-          "maxTokens": 640,
-          "temperature": 0,
-          "topP": 0,
-          "frequencyPenalty": 0.1,
-          "presencePenalty": 0.1,
-          "seed": 42,
-          "stop": [],
-          "user_template": "You are the AI-EMR billing and review workflow assistant for Korean healthcare claim-support. Analyze the user EMR/question and the retrieval context passed from the previous RAG/search node. User EMR/question: {{query}}\n\nReturn strict JSON only. No markdown. If retrieved context is absent, weak, or not directly relevant, do not invent standards; mark deduction warnings as NEEDS_EVIDENCE. Required fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail. Recommend KCD/EDI candidates only when supported by EMR evidence. Documentation guidance must say to document only if clinically true. This is review-support tooling, not autonomous medical, legal, or reimbursement decision-making."
+          "llm": {
+            "model": "claude-sonnet-4-6",
+            "chat_engine": "anthropic",
+            "max_tokens": 2400,
+            "temperature": 0
+          },
+          "system_template": "You are the AI-EMR billing and review workflow assistant for Korean healthcare claim-support. You receive a de-identified EMR request and upstream RAG retrieval context from STORM embeddings. Produce review-support output only. Do not make autonomous medical, legal, or reimbursement decisions.",
+          "retrieval_chunks_template": "Retrieved STORM knowledge bucket passages:\n{{rag_contexts:2}}",
+          "user_template": "You are the AI-EMR billing and review workflow assistant for Korean healthcare claim-support. Analyze the user EMR/question and the retrieval context passed from the previous RAG/search node.\n\nUser EMR/question:\n{{query}}\n\nRetrieved STORM context from the previous RAG node:\n{{rag_contexts:2}}\n\nReturn strict JSON only. Do not use markdown. Do not wrap the response in ```json code fences. If retrieved context is absent, weak, or not directly relevant, do not invent standards; mark deduction warnings as NEEDS_EVIDENCE. Required fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail. Recommend KCD/EDI candidates only when supported by EMR evidence. Documentation guidance must say to document only if clinically true. This is review-support tooling, not autonomous medical, legal, or reimbursement decision-making."
         }
       },
       {
         "id": 4,
         "type": "storm/response",
-        "properties": {}
+        "properties": {
+          "result_list": [
+            "{{llm_result:3}}"
+          ]
+        }
       }
     ]
   },
