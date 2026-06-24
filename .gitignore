@@ -1,0 +1,14 @@
+data/aihub/*
+!data/aihub/.gitkeep
+data/storm/*
+!data/storm/.gitkeep
+data/storm_md/*
+!data/storm_md/.gitkeep
+data/storm_txt/*
+!data/storm_txt/.gitkeep
+tools/aihubshell
+.DS_Store
+.env
+.pycache/
+__pycache__/
+*.py[cod]

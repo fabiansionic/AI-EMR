@@ -1,0 +1,5 @@
+datasetkey	slug	title	source_url	access_note
+71875	required-medical-knowledge	필수의료 의학지식 데이터	https://www.aihub.or.kr/aihubdata/data/view.do?aihubDataSe=data&dataSetSn=71875	Requires AIHub approval; healthcare data may require safe-zone approval.
+71487	medical-legal-corpus	의료, 법률 전문 서적 말뭉치	https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=71487	Requires AIHub approval; Korean nationals only notice appears on AIHub page.
+566	medical-speech	의료 분야 음성 데이터	https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=566	AIHub marks this as online safe-zone data; local download may be restricted.
+

@@ -1,0 +1,54 @@
+{
+  "id": "7475416917920104448",
+  "agentId": "7475416844727144448",
+  "schemaVersion": 1,
+  "revision": 1,
+  "orderSheet": {
+    "links": [
+      [
+        1,
+        1,
+        2
+      ],
+      [
+        2,
+        2,
+        3
+      ]
+    ],
+    "nodes": [
+      {
+        "id": 1,
+        "type": "storm/request",
+        "properties": {}
+      },
+      {
+        "id": 2,
+        "type": "storm/agentic-rag",
+        "properties": {
+          "max_turn": 5,
+          "question": "{{query}}",
+          "max_round": 10,
+          "web_search": false,
+          "callback_url": null,
+          "context_hint": null,
+          "skip_learning": false,
+          "knowledge_scope": "agent",
+          "include_references": true,
+          "exploration_timeout_ms": 180000
+        }
+      },
+      {
+        "id": 3,
+        "type": "storm/response",
+        "properties": {
+          "result_list": [
+            "{{custom_variables}}"
+          ]
+        }
+      }
+    ]
+  },
+  "customVariables": {},
+  "note": "Restrict RAG to the Fabian Onboarding AI EMR agent scope."
+}
