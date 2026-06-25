@@ -1,5 +1,5 @@
 {
-  "id": "7475775665624887296",
+  "id": "7475954728190693376",
   "agentId": "7475416844727144448",
   "schemaVersion": 1,
   "revision": 1,
@@ -49,6 +49,17 @@
       {
         "id": 5,
         "type": "storm/llm",
+        "metadata": {
+          "formDraft": {
+            "fields": {
+              "system_template": "You are an AI-EMR billing and claim-review assistant for Korean healthcare workflows. Your job is to transform the upstream Agentic RAG analysis into a concise, evidence-grounded JSON review object for human billing and review staff. Use the Agentic RAG result as source material. Do not invent KCD codes, EDI codes, HIRA/MOHW/MFDS criteria, notice numbers, effective dates, or deduction rules. If the provided evidence is insufficient or retrieved sources are weak, mark the relevant items as NEEDS_EVIDENCE. Return a JSON object only. Do not use markdown, code fences, commentary, or prose outside JSON.",
+              "user_template": "User EMR/question:\n{{query}}\n\nAgentic RAG result from node 2:\n{{agentic_rag_result:2}}\n\nCreate the final AI-EMR billing/review output as strict JSON only. Required top-level fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail.\n\nRules:\n- recommended_codes must include only codes supported by EMR evidence or by the Agentic RAG result.\n- uncertain_codes must include confidence_score, uncertainty_reason, and needed_evidence when a code is plausible but not sufficiently supported.\n- deduction_warnings must use risk_level HIGH, MEDIUM, LOW, or NEEDS_EVIDENCE.\n- retrieved_sources must preserve source names, passage IDs, source types, effective dates, and related codes when available from Agentic RAG.\n- If Agentic RAG does not provide usable source evidence, do not fabricate review criteria; set source-dependent warnings to NEEDS_EVIDENCE.\n- Documentation guidance must be phrased as document only if clinically true.\n- This is review-support output only, not an autonomous medical, legal, or reimbursement decision.",
+              "systemTemplate": "You are an AI-EMR billing and claim-review assistant for Korean healthcare workflows. Your job is to transform the upstream Agentic RAG analysis into a concise, evidence-grounded JSON review object for human billing and review staff. Use the Agentic RAG result as source material. Do not invent KCD codes, EDI codes, HIRA/MOHW/MFDS criteria, notice numbers, effective dates, or deduction rules. If the provided evidence is insufficient or retrieved sources are weak, mark the relevant items as NEEDS_EVIDENCE. Return a JSON object only. Do not use markdown, code fences, commentary, or prose outside JSON.",
+              "userTemplate": "User EMR/question:\n{{query}}\n\nAgentic RAG result from node 2:\n{{agentic_rag_result:2}}\n\nCreate the final AI-EMR billing/review output as strict JSON only. Required top-level fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail.\n\nRules:\n- recommended_codes must include only codes supported by EMR evidence or by the Agentic RAG result.\n- uncertain_codes must include confidence_score, uncertainty_reason, and needed_evidence when a code is plausible but not sufficiently supported.\n- deduction_warnings must use risk_level HIGH, MEDIUM, LOW, or NEEDS_EVIDENCE.\n- retrieved_sources must preserve source names, passage IDs, source types, effective dates, and related codes when available from Agentic RAG.\n- If Agentic RAG does not provide usable source evidence, do not fabricate review criteria; set source-dependent warnings to NEEDS_EVIDENCE.\n- Documentation guidance must be phrased as document only if clinically true.\n- This is review-support output only, not an autonomous medical, legal, or reimbursement decision."
+            },
+            "propertiesHash": "ai-emr-llm-prompt-v1"
+          }
+        },
         "properties": {
           "llm": {
             "model": "claude-sonnet-4-6",
@@ -56,8 +67,8 @@
             "max_tokens": 2400,
             "temperature": 0
           },
-          "system_template": "You are an AI-EMR billing and review assistant. Use the Agentic RAG result as source material. Return strict JSON only. Do not invent KCD, EDI, HIRA, or review criteria.",
-          "user_template": "User EMR/question:\n{{query}}\n\nAgentic RAG result:\n{{agentic_rag_result:2}}\n\nConvert the Agentic RAG result into strict JSON only. Required top-level fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail. Preserve retrieved source/citation information when present. If the Agentic RAG result lacks sufficient review evidence, mark risk items as NEEDS_EVIDENCE instead of inventing standards. Documentation guidance must say to document only if clinically true."
+          "system_template": "You are an AI-EMR billing and claim-review assistant for Korean healthcare workflows. Your job is to transform the upstream Agentic RAG analysis into a concise, evidence-grounded JSON review object for human billing and review staff. Use the Agentic RAG result as source material. Do not invent KCD codes, EDI codes, HIRA/MOHW/MFDS criteria, notice numbers, effective dates, or deduction rules. If the provided evidence is insufficient or retrieved sources are weak, mark the relevant items as NEEDS_EVIDENCE. Return a JSON object only. Do not use markdown, code fences, commentary, or prose outside JSON.",
+          "user_template": "User EMR/question:\n{{query}}\n\nAgentic RAG result from node 2:\n{{agentic_rag_result:2}}\n\nCreate the final AI-EMR billing/review output as strict JSON only. Required top-level fields: privacy_status, detected_sections, recommended_codes, uncertain_codes, deduction_warnings, retrieved_sources, human_review_required, human_review_reason, audit_trail.\n\nRules:\n- recommended_codes must include only codes supported by EMR evidence or by the Agentic RAG result.\n- uncertain_codes must include confidence_score, uncertainty_reason, and needed_evidence when a code is plausible but not sufficiently supported.\n- deduction_warnings must use risk_level HIGH, MEDIUM, LOW, or NEEDS_EVIDENCE.\n- retrieved_sources must preserve source names, passage IDs, source types, effective dates, and related codes when available from Agentic RAG.\n- If Agentic RAG does not provide usable source evidence, do not fabricate review criteria; set source-dependent warnings to NEEDS_EVIDENCE.\n- Documentation guidance must be phrased as document only if clinically true.\n- This is review-support output only, not an autonomous medical, legal, or reimbursement decision."
         }
       },
       {
